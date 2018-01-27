@@ -1,4 +1,4 @@
-package com.simmulation;
+package fmi.simmulation;
 
 import io.jenetics.Gene;
 import io.jenetics.util.ISeq;
@@ -10,11 +10,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents a fixed size polygon with its fill color.
  */
-final class PolygonGene
-                implements
-                Gene<Polygon, PolygonGene>,
-                Mean<PolygonGene>
-{
+final class PolygonGene implements Gene<Polygon, PolygonGene>, Mean<PolygonGene> {
     private final Polygon _polygon;
 
     private PolygonGene(final Polygon polygon) {

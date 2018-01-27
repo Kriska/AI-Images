@@ -1,4 +1,4 @@
-package com.recognition;
+package fmi.recognition;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
-import com.simmulation.EvolvingImages;
+import fmi.simmulation.EvolvingImages;
 
 import static java.lang.System.getProperty;
 

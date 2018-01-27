@@ -1,7 +1,7 @@
-package com;
+package fmi;
 
-import com.recognition.Recognizer;
-import com.simmulation.EvolvingImages;
+import fmi.recognition.Recognizer;
+import fmi.simmulation.EvolvingImages;
 
 import java.io.File;
 import java.util.HashMap;

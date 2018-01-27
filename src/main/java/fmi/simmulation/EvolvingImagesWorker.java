@@ -1,4 +1,4 @@
-package com.simmulation;
+package fmi.simmulation;
 
 import io.jenetics.Genotype;
 import io.jenetics.MeanAlterer;
@@ -20,7 +20,7 @@ import java.util.function.BiConsumer;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Performs the actual evolution.
+ * Performs the evolution.
  */
 final class EvolvingImagesWorker {
 
@@ -37,41 +37,22 @@ final class EvolvingImagesWorker {
     private final Condition _pauseCondition = _pauseLock.newCondition();
 
     /**
-     * Create an new worker instance with the given parameter and for the given
-     * image.
-     *
-     * @param param the GA engine parameter
-     * @param image the image to polygonize
+     * Create an new worker instance with the input parameters.
      */
-    private EvolvingImagesWorker(
-                    final EngineParam param,
-                    final BufferedImage image
-    ) {
+    private EvolvingImagesWorker(final EngineParam param, final BufferedImage image) {
         _image = requireNonNull(image);
 
-        _refImage = resizeImage(
-                        _image,
-                        param.getReferenceImageSize().width,
-                        param.getReferenceImageSize().height,
-                        BufferedImage.TYPE_INT_ARGB
-        );
+        _refImage = resizeImage( _image, param.getReferenceImageSize().width, param.getReferenceImageSize().height,
+                                BufferedImage.TYPE_INT_ARGB);
 
-        _workingImage = ThreadLocal.withInitial(() -> new BufferedImage(
-                        _refImage.getWidth(),
-                        _refImage.getHeight(),
-                        BufferedImage.TYPE_INT_ARGB
-        ));
+        _workingImage = ThreadLocal.withInitial(() -> new BufferedImage(_refImage.getWidth(), _refImage.getHeight(),
+                        BufferedImage.TYPE_INT_ARGB));
 
-        _refImagePixels = _refImage.getData().getPixels(
-                        0, 0, _refImage.getWidth(), _refImage.getHeight(), (int[])null
-        );
+        _refImagePixels = _refImage.getData().getPixels(0, 0, _refImage.getWidth(), _refImage.getHeight(), (int[])null);
 
         final Codec<PolygonChromosome, PolygonGene> codec = Codec.of(
-                        Genotype.of(new PolygonChromosome(
-                                        param.getPolygonCount(), param.getPolygonLength()
-                        )),
-                        gt -> (PolygonChromosome) gt.getChromosome()
-        );
+                                        Genotype.of(new PolygonChromosome(param.getPolygonCount(), param.getPolygonLength())),
+                                        gt -> (PolygonChromosome) gt.getChromosome());
 
         _engine = Engine.builder(this::fitness, codec)
                         .populationSize(param.getPopulationSize())
@@ -86,12 +67,7 @@ final class EvolvingImagesWorker {
                         .build();
     }
 
-    private static BufferedImage resizeImage(
-                    final BufferedImage image,
-                    final int width,
-                    final int height,
-                    final int type
-    ) {
+    private static BufferedImage resizeImage(final BufferedImage image, final int width, final int height, final int type) {
         final BufferedImage resizedImage = new BufferedImage(width, height, type);
         final Graphics2D g = resizedImage.createGraphics();
         g.drawImage(image, 0, 0, width, height, null);
@@ -104,35 +80,31 @@ final class EvolvingImagesWorker {
     }
 
     /**
-     * Calculate the fitness function for a Polygon chromosome.
-     * <p>
-     * For this purpose, we first draw the polygons on the test buffer,  and
-     * then compare the resulting image pixel by pixel with the  reference image.
+     * Calculate the fitness function - check pixel by pixel.
      */
     private double fitness(final PolygonChromosome chromosome) {
-        final BufferedImage img = _workingImage.get();
-        final Graphics2D g2 = img.createGraphics();
-        final int width = img.getWidth();
-        final int height = img.getHeight();
+        final BufferedImage image = _workingImage.get();
+        final Graphics2D g2 = image.createGraphics();
+        final int width = image.getWidth();
+        final int height = image.getHeight();
 
         chromosome.draw(g2, width, height);
         g2.dispose();
 
         final int[] refPixels = _refImagePixels;
-        final int[] testPixels = img.getData()
-                                    .getPixels(0, 0, width, height, (int[])null);
+        final int[] testPixels = image.getData().getPixels(0, 0, width, height, (int[])null);
 
-        int diff = 0;
+        int difference = 0;
         int p = width*height*4 - 1; // 4 channels: rgba
         int idx = 0;
         do {
             if (idx++%4 != 0) { // ignore the alpha channel for fitness
                 int dp = testPixels[p] - refPixels[p];
-                diff += (dp < 0) ? -dp : dp;
+                difference += (dp < 0) ? -dp : dp;
             }
         } while (--p > 0);
 
-        return 1.0 - diff/(width*height*3.0*256);
+        return 1.0 - difference/(width*height*3.0*256);
     }
 
     /**
@@ -142,24 +114,17 @@ final class EvolvingImagesWorker {
      * @param callback the {@code EvolutionResult} callback. The first parameter
      *        contains the current result and the second the best.
      */
-    public void start(
-                    final BiConsumer<
-                                    EvolutionResult<PolygonGene, Double>,
-                                    EvolutionResult<PolygonGene, Double>> callback
-    ) {
+    public void start(final BiConsumer<EvolutionResult<PolygonGene, Double>,EvolutionResult<PolygonGene, Double>> callback) {
         final Thread thread = new Thread(() -> {
-            final MinMax<EvolutionResult<PolygonGene, Double>> best = MinMax.of();
-
-            _engine.stream()
-                   .limit(result -> !Thread.currentThread().isInterrupted())
-                   .peek(best)
-                   .forEach(r -> {
-                       waiting();
-                       if (callback != null) {
-                           callback.accept(r, best.getMax());
-                       }
-                   });
-        });
+                final MinMax<EvolutionResult<PolygonGene, Double>> best = MinMax.of();
+                _engine.stream().limit(result -> !Thread.currentThread().isInterrupted())
+                   .peek(best).forEach(r -> {
+                                                waiting();
+                                                if (callback != null) {
+                                                    callback.accept(r, best.getMax());
+                                                }
+                    });
+                });
         thread.start();
         _thread = thread;
     }
@@ -179,9 +144,6 @@ final class EvolvingImagesWorker {
         }
     }
 
-    /**
-     * Stops the current evolution, if running.
-     */
     public void stop() {
         resume();
         final Thread thread = _thread;
@@ -197,11 +159,6 @@ final class EvolvingImagesWorker {
         }
     }
 
-    /**
-     * Waits for the evolution thread.
-     *
-     * @throws InterruptedException if the calling thread has been interrupted.
-     */
     public void join() throws InterruptedException {
         final Thread thread = _thread;
         if (thread != null) {
@@ -209,9 +166,6 @@ final class EvolvingImagesWorker {
         }
     }
 
-    /**
-     * Pauses the current evolution run.
-     */
     public void pause() {
         _pauseLock.lock();
         try {
@@ -221,9 +175,6 @@ final class EvolvingImagesWorker {
         }
     }
 
-    /**
-     * Resumes the current evolution run.
-     */
     public void resume() {
         _pauseLock.lock();
         try {
@@ -234,18 +185,7 @@ final class EvolvingImagesWorker {
         }
     }
 
-    /**
-     * Return an new worker instance with the given parameter and for the given
-     * image.
-     *
-     * @param param the GA engine parameter
-     * @param image the image to polygonize
-     * @return a new evolving image instance
-     */
-    public static EvolvingImagesWorker of(
-                    final EngineParam param,
-                    final BufferedImage image
-    ) {
+    public static EvolvingImagesWorker of( final EngineParam param,final BufferedImage image) {
         return new EvolvingImagesWorker(param, image);
     }
 

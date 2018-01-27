@@ -1,4 +1,4 @@
-package  com.simmulation;
+package  fmi.simmulation;
 
 import io.jenetics.internal.util.require;
 import io.jenetics.util.Mean;
@@ -11,21 +11,21 @@ import java.util.Random;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 
+/**
+ * index => data
+ * 0  => red
+ * 1  => green
+ * 2  => blue
+ * 3  => alpha
+ * 4  => first x
+ * 5  => first y
+ * 6  => second x
+ * ...
+ * N  => last y
+ * size = 4 + 2*polygon-length
+ */
 final class Polygon implements Mean<Polygon> {
 
-    // The polygon in packed representation:
-    // index | data
-    //    0  | red component
-    //    1  | green component
-    //    2  | blue component
-    //    3  | alpha channel
-    //    4  | first x coordinate
-    //    5  | first y coordinate
-    //    6  | second x coordinate
-    //  ...
-    //    N  | last y coordinate
-    // ---------------------------
-    /// size = 4 + 2*polygon-length
     private final float[] _data;
     private final int _length;
 
@@ -41,10 +41,7 @@ final class Polygon implements Mean<Polygon> {
 
     public Polygon mean(final Polygon other) {
         if (other.length() != length()) {
-            throw new IllegalArgumentException(format(
-                            "Polygon must have the same length: %d != %d",
-                            length(), other.length()
-            ));
+            throw new IllegalArgumentException(format("Polygon must have the same length: %d != %d", length(), other.length()));
         }
 
         final Polygon mean = new Polygon(length());
@@ -56,16 +53,12 @@ final class Polygon implements Mean<Polygon> {
     }
 
     /**
-     * Return a new Polygon, mutated with the given rate and amount.
-     * <p>
+     * Return a new mutated Polygon.
+     *
      * Each component of the Polygon may be mutated according to the specified
      * mutation rate. In case a component is going to be mutated, its value will
-     * be randomly modified in the uniform range of
-     * {@code [-magnitude, +magnitude]}.
+     * be randomly modified in the range of [-magnitude, +magnitude].
      *
-     * @param rate the mutation rate
-     * @param magnitude the mutation amount
-     * @return a new Polygon
      */
     public Polygon mutate(final float rate, final float magnitude) {
         final Random random = RandomRegistry.getRandom();
@@ -73,8 +66,7 @@ final class Polygon implements Mean<Polygon> {
 
         for (int i = 0; i < _data.length; ++i) {
             if (random.nextFloat() < rate) {
-                mutated._data[i] =
-                                clamp(_data[i] + (random.nextFloat()*2F - 1F)*magnitude);
+                mutated._data[i] = clamp(_data[i] + (random.nextFloat()*2F - 1F)*magnitude);
             } else {
                 mutated._data[i] = _data[i];
             }
@@ -121,11 +113,9 @@ final class Polygon implements Mean<Polygon> {
 
     private static float clamp(final float a) {
         return a < 0F ? 0F : a > 1F ? 1F : a;
-        //return Math.abs(a%1F);
     }
 
     public static Polygon newRandom(final int length) {
         return newRandom(length, RandomRegistry.getRandom());
     }
-
 }

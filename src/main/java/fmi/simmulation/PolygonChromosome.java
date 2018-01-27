@@ -1,4 +1,4 @@
-package com.simmulation;
+package fmi.simmulation;
 
 import io.jenetics.AbstractChromosome;
 import io.jenetics.Chromosome;
@@ -9,9 +9,6 @@ import java.awt.*;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 
-/**
- * A simple chromosome representing a list of polygons.
- */
 final class PolygonChromosome extends AbstractChromosome<PolygonGene> {
     private static final long serialVersionUID = 1L;
 

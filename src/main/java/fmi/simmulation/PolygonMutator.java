@@ -1,6 +1,4 @@
-package com.simmulation;
-
-import com.simmulation.PolygonGene;
+package fmi.simmulation;
 import io.jenetics.Chromosome;
 import io.jenetics.Mutator;
 import io.jenetics.MutatorResult;
@@ -12,9 +10,7 @@ import java.util.Random;
  *
  * @param <C> the fitness type
  */
-final class PolygonMutator<C extends Comparable<? super C>>
-                extends Mutator<PolygonGene, C>
-{
+final class PolygonMutator<C extends Comparable<? super C>> extends Mutator<PolygonGene, C> {
 
     private final float _rate;
     private final float _magnitude;
@@ -26,15 +22,9 @@ final class PolygonMutator<C extends Comparable<? super C>>
     }
 
     @Override
-    protected MutatorResult<Chromosome<PolygonGene>> mutate(
-                    final Chromosome<PolygonGene> chromosome,
-                    final double p,
-                    final Random random
-    ) {
-        return MutatorResult.of(
-                        chromosome.newInstance(chromosome.toSeq().map(this::mutate)),
-                        chromosome.length()
-        );
+    protected MutatorResult<Chromosome<PolygonGene>> mutate(final Chromosome<PolygonGene> chromosome, final double p, final Random random) {
+
+        return MutatorResult.of(chromosome.newInstance(chromosome.toSeq().map(this::mutate)), chromosome.length());
     }
 
     private PolygonGene mutate(final PolygonGene gene) {

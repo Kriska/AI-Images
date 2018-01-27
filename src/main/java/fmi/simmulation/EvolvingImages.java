@@ -1,4 +1,4 @@
-package com.simmulation;
+package fmi.simmulation;
 
 import io.jenetics.Phenotype;
 
@@ -92,7 +92,6 @@ public final class EvolvingImages {
     }
 
     private BufferedImage readImage(final String name) {
-
         try {
             return ImageIO.read(new File(System.getProperty("user.dir") + name));
         } catch (IOException e) {
@@ -129,25 +128,13 @@ public final class EvolvingImages {
             println(_engineParam);
             println("");
 
-            evolve(
-                            _engineParam,
-                            _image,
-                            _outputDir,
-                            _generations,
-                            _imageGeneration
-            );
+            evolve(_engineParam, _image, _outputDir, _generations, _imageGeneration);
         }
 
         return _engineParam != null;
     }
 
-    private static void evolve(
-                    final EngineParam params,
-                    final BufferedImage image,
-                    final File outputDir,
-                    final long generations,
-                    final int generationGap
-    ) {
+    private static void evolve( final EngineParam params, final BufferedImage image, final File outputDir, final long generations, final int generationGap) {
         println("Starting evolution.");
         final EvolvingImagesWorker worker = EvolvingImagesWorker.of(params, image);
 
@@ -164,28 +151,18 @@ public final class EvolvingImages {
                 final double speed = generationGap/(duration/1000.0);
                 time.set(System.currentTimeMillis());
 
-                final File file = new File(
-                                outputDir,
-                                format(IMAGE_PATTERN, generation)
-                );
+                final File file = new File( outputDir, format(IMAGE_PATTERN, generation));
 
                 final Phenotype<PolygonGene, Double> pt = best.getBestPhenotype();
                 if (latest.get() == null || latest.get().compareTo(pt) < 0) {
-                    log(
-                                    "Writing '%s': fitness=%1.4f, speed=%1.2f.",
-                                    file, pt.getFitness(), speed
-                    );
+                    log("Writing '%s': fitness=%1.4f, speed=%1.2f.", file, pt.getFitness(), speed);
 
                     latest.set(pt);
-                    final PolygonChromosome ch =
-                                    (PolygonChromosome)pt.getGenotype().getChromosome();
+                    final PolygonChromosome ch = (PolygonChromosome)pt.getGenotype().getChromosome();
 
                     writeImage(file, ch, image.getWidth(), image.getHeight());
                 } else {
-                    log(
-                                    "No improvement - %07d: fitness=%1.4f, speed=%1.2f.",
-                                    generation, pt.getFitness(), speed
-                    );
+                    log("No improvement - %07d: fitness=%1.4f, speed=%1.2f.", generation, pt.getFitness(), speed);
                 }
             }
 
@@ -201,12 +178,7 @@ public final class EvolvingImages {
         }
     }
 
-    static void writeImage(
-                    final File file,
-                    final PolygonChromosome chromosome,
-                    final int width,
-                    final int height
-    ) {
+    static void writeImage(final File file, final PolygonChromosome chromosome, final int width, final int height) {
         final double MIN_SIZE = 500;
         final double scale = max(max(MIN_SIZE/width, MIN_SIZE/height), 1.0);
         final int w = (int)round(scale*width);
@@ -229,11 +201,9 @@ public final class EvolvingImages {
 
     private static void log(final Object pattern, final Object... args) {
         final LocalDateTime now = LocalDateTime.now();
-        final String tss = now.toLocalDate().toString() + ' ' +
-                        now.toLocalTime();
+        final String tss = now.toLocalDate().toString() + ' ' + now.toLocalTime();
 
         final String p = format("%s - ", tss) + pattern;
         System.out.println(format(p, args));
     }
-
 }

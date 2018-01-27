@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fmi.images</groupId>
     <artifactId>AIImage</artifactId>
-    <version>3.0</version>
+    <version>3.2</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,7 +49,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.Main</mainClass>
+                            <mainClass>fmi.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

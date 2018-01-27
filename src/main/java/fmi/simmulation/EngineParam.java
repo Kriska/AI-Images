@@ -1,4 +1,4 @@
-package com.simmulation;
+package fmi.simmulation;
 
 import java.awt.*;
 import java.io.IOException;
@@ -180,24 +180,10 @@ final class EngineParam {
         );
     }
 
-    public static EngineParam of(
-                    final int populationSize,
-                    final int tournamentSize,
-                    final float mutationRate,
-                    final float mutationChange,
-                    final int polygonLength,
-                    final int polygonCount,
-                    final Dimension referenceImageSize
-    ) {
-        return new EngineParam(
-                        populationSize,
-                        tournamentSize,
-                        mutationRate,
-                        mutationChange,
-                        polygonLength,
-                        polygonCount,
-                        referenceImageSize
-        );
+    public static EngineParam of(final int populationSize, final int tournamentSize, final float mutationRate, final float mutationChange,
+                                 final int polygonLength, final int polygonCount, final Dimension referenceImageSize) {
+
+        return new EngineParam(populationSize, tournamentSize, mutationRate, mutationChange, polygonLength, polygonCount, referenceImageSize);
     }
 
 }
